@@ -1,0 +1,8 @@
+{
+    "name": "Drip",
+    "description": "",
+    "app": {
+        "addr": ":8008"
+    },
+    "log": "conf/log-dev.xml"
+}

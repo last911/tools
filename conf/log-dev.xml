@@ -1,0 +1,5 @@
+<seelog minlevel="debug">
+	<outputs>
+		<console />
+	</outputs>
+</seelog>
