@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"github.com/jinzhu/copier"
 	"github.com/jmoiron/sqlx"
 	"github.com/last911/tools"
 	"reflect"
@@ -78,17 +77,11 @@ func (db *DB) query(sql string, num int, v ...interface{}) (Rows, error) {
 	var result Rows
 	if st != nil {
 		for rows.Next() {
-			var row interface{}
-			err := copier.Copy(&row, &st)
+			err := rows.StructScan(st)
 			if err != nil {
 				return nil, err
 			}
-
-			err = rows.StructScan(row)
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, reflect.ValueOf(row).Elem().Interface())
+			result = append(result, reflect.ValueOf(st).Elem().Interface())
 			if num == 1 {
 				break
 			}
