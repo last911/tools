@@ -304,12 +304,12 @@ func Authcode(text string, params ...interface{}) (str string, err error) {
 	}
 
 	// check expire time
-	i, e := strconv.Atoi(string(result[0:10]))
+	d, e := strconv.ParseInt(string(result[0:10]), 10, 0)
 	if e != nil {
 		err = fmt.Errorf("expires time error: %s", e.Error())
 		return
 	}
-	d := int64(i)
+
 	if (d == 0 || d-timestamp > 0) && string(result[10:26]) == Md5Sum(string(result[26:]) + keyB)[0:16] {
 		return string(result[26:]), nil
 	}
@@ -337,8 +337,14 @@ func TimeFormat(t time.Time, f int) (timeStr string) {
 }
 
 // Now format now
-func Now(f int) string {
-	return TimeFormat(time.Now(), f)
+func Now(f ...int) string {
+	var format int
+	if len(f) > 0 {
+		format = f[0]
+	} else {
+		format = 0
+	}
+	return TimeFormat(time.Now(), format)
 }
 
 // StructToMap struct convert to map
@@ -348,7 +354,10 @@ func StructToMap(data interface{}) map[string]interface{} {
 	size := elem.NumField()
 
 	for i := 0; i < size; i++ {
-		field := elem.Type().Field(i).Name
+		field := elem.Type().Field(i).Tag.Get("name")
+		if field == "" {
+			field = elem.Type().Field(i).Name
+		}
 		value := elem.Field(i).Interface()
 		result[field] = value
 	}
@@ -388,11 +397,7 @@ func IsEmpty(val interface{}) (b bool) {
 		b = (val.(bool) == false)
 	case reflect.String:
 		b = (len(val.(string)) == 0)
-	case reflect.Array:
-		fallthrough
-	case reflect.Slice:
-		fallthrough
-	case reflect.Map:
+	case reflect.Array, reflect.Slice, reflect.Map:
 		b = (v.Len() == 0)
 	default:
 		b = (v.Interface() == reflect.ValueOf(0).Interface() || v.Interface() == reflect.ValueOf(0.0).Interface())
@@ -402,32 +407,36 @@ func IsEmpty(val interface{}) (b bool) {
 }
 
 // IP2Long IP convert to long int
-func IP2Long(ipstr string) (ip uint32) {
+func IP2Long(ipstr string) (uint64, error) {
+	var ip uint64
 	r := `^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})`
 	reg, err := regexp.Compile(r)
 	if err != nil {
-		return
+		return 0, err
 	}
 	ips := reg.FindStringSubmatch(ipstr)
 	if ips == nil {
-		return
+		return 0, fmt.Errorf("Error ip addr:" + ipstr)
 	}
 
-	ip1, _ := strconv.Atoi(ips[1])
-	ip2, _ := strconv.Atoi(ips[2])
-	ip3, _ := strconv.Atoi(ips[3])
-	ip4, _ := strconv.Atoi(ips[4])
-
-	if ip1 > 255 || ip2 > 255 || ip3 > 255 || ip4 > 255 {
-		return
+	ipInt := make([]int, 0, 4)
+	for index, i := range ips {
+		d, err := strconv.Atoi(i)
+		if err != nil {
+			return 0, nil
+		}
+		if d < 0 || d > 255 {
+			return 0, fmt.Errorf("Error ip addr:%s in segment[%d]", ipstr, index)
+		}
+		ipInt = append(ipInt, d)
 	}
 
-	ip += uint32(ip1 * 0x1000000)
-	ip += uint32(ip2 * 0x10000)
-	ip += uint32(ip3 * 0x100)
-	ip += uint32(ip4)
+	ip += uint64(ipInt[0] * 0x1000000)
+	ip += uint64(ipInt[1] * 0x10000)
+	ip += uint64(ipInt[2] * 0x100)
+	ip += uint64(ipInt[3])
 
-	return
+	return ip, nil
 }
 
 // Long2IP longint convert to IP

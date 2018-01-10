@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/bitly/go-simplejson"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,15 +12,11 @@ type GinServer struct {
 }
 
 // NewGinServer create a gin web server
-func NewGinServer(env string, configStr ...string) (*GinServer, error) {
+func NewGinServer(env string, config ...*simplejson.Json) (*GinServer, error) {
 	server := &GinServer{}
 	server.Env = env
 	var err error
-	if len(configStr) > 0 {
-		server.AppPath, server.Config, err = initializeFromConfig(configStr[0])
-	} else {
-		server.AppPath, server.Config, err = initialize(env)
-	}
+	server.AppPath, server.Config, err = initialize(env, config...)
 	if err != nil {
 		return nil, err
 	}

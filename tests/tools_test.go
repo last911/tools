@@ -63,3 +63,13 @@ func TestAuthcode(t *testing.T) {
 	}
 	t.Log("authcode decode:", x)
 }
+
+type TestStruct struct {
+	Name string `name:"name"`
+	Age  int
+}
+
+func TestStructToMap(t *testing.T) {
+	ts := &TestStruct{Name: "scnjl", Age: 38}
+	t.Log(tools.StructToMap(ts))
+}

@@ -2,7 +2,8 @@ package server
 
 import (
 	"encoding/json"
-	log "github.com/cihub/seelog"
+	"github.com/bitly/go-simplejson"
+	log "github.com/last911/tools/log"
 	"io/ioutil"
 	"net/http"
 )
@@ -114,15 +115,12 @@ type JSONRPCServer struct {
 }
 
 // NewJSONRPCServer jsonrpc protocol web server
-func NewJSONRPCServer(env string, configStr ...string) (*JSONRPCServer, error) {
+func NewJSONRPCServer(env string, config ...*simplejson.Json) (*JSONRPCServer, error) {
 	server := &JSONRPCServer{handles: make(map[string]HandleFunc)}
 	server.Env = env
 	var err error
-	if len(configStr) > 0 {
-		server.AppPath, server.Config, err = initializeFromConfig(configStr[0])
-	} else {
-		server.AppPath, server.Config, err = initialize(env)
-	}
+
+	server.AppPath, server.Config, err = initialize(env, config...)
 	if err != nil {
 		return nil, err
 	}

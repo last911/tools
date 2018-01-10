@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"github.com/bitly/go-simplejson"
 	"github.com/gin-gonic/gin"
 	"github.com/last911/tools/server"
 	"io/ioutil"
@@ -10,7 +11,11 @@ import (
 
 func TestGinServer(t *testing.T) {
 	go func() {
-		server, err := server.NewGinServer("dev", "{}")
+		config, err := simplejson.NewJson([]byte("{}"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		server, err := server.NewGinServer("dev", config)
 		if err != nil {
 			t.Fatal(err)
 		}

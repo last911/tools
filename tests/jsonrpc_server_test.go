@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"github.com/bitly/go-simplejson"
 	jsonserver "github.com/last911/tools/server"
 	"io/ioutil"
 	"net/http"
@@ -44,7 +45,11 @@ func TestJSONResponse(t *testing.T) {
 
 func TestJSONRPCServer(t *testing.T) {
 	go func() {
-		server, err := jsonserver.NewJSONRPCServer("", "{}")
+		config, err := simplejson.NewJson([]byte("{}"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		server, err := jsonserver.NewJSONRPCServer("", config)
 		if err != nil {
 			t.Fatal(err)
 		}

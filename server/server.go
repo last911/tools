@@ -1,55 +1,56 @@
 package server
 
 import (
-	"github.com/last911/tools"
 	"fmt"
-	"io/ioutil"
 	"github.com/bitly/go-simplejson"
-	log "github.com/cihub/seelog"
+	"github.com/last911/tools"
+	"github.com/last911/tools/log"
+	"io/ioutil"
 )
 
+// Server web server
 type Server struct {
 	Config  *simplejson.Json // Config is Conf struct
 	AppPath string           // AppPath bin path
 	Env     string           // Environment
 }
 
-func initialize(env string) (appPath string, config *simplejson.Json, err error) {
-	appPath, err = tools.AbsolutePath()
+// initialize return app path and config json or error
+func initialize(env string, conf ...*simplejson.Json) (string, *simplejson.Json, error) {
+	var err error
+	appPath, err := tools.AbsolutePath()
 	if err != nil {
-		return
+		return "", nil, err
 	}
-	configPath := appPath + "conf/config-" + env + ".json"
-	log.Debug(fmt.Sprintf("load config from[%s]", configPath))
-
-	b, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		return
-	}
-
-	return initializeFromConfig(string(b))
-}
-
-func initializeFromConfig(configStr string) (appPath string, config *simplejson.Json, err error) {
-	config, err = simplejson.NewJson([]byte(configStr))
-	if err != nil {
-		return
-	}
-
-	log.Debug("config data:", config)
-	logConf := config.Get("log")
-	logConfPath, err := logConf.String()
-	var logger log.LoggerInterface
-	if err != nil {
-		logger = log.Default
-		err = nil
+	var config *simplejson.Json
+	if len(conf) > 0 {
+		config = conf[0]
 	} else {
-		logger, err = log.LoggerFromConfigAsFile(logConfPath)
+		configPath := appPath + "conf/config-" + env + ".json"
+		log.Debug(fmt.Sprintf("load config from[%s]", configPath))
+
+		b, err := ioutil.ReadFile(configPath)
 		if err != nil {
-			return
+			return "", nil, err
+		}
+
+		config, err = simplejson.NewJson(b)
+		if err != nil {
+			return "", nil, err
 		}
 	}
-	log.UseLogger(logger)
 
-	return
+	logConf := config.Get("log")
+	logConfPath, err := logConf.String()
+	var opts = ""
+	if err == nil {
+		b, err := ioutil.ReadFile(logConfPath)
+		if err != nil {
+			return "", nil, err
+		}
+		opts = string(b)
+	}
+	log.InitLogger(opts)
+
+	return appPath, config, nil
 }
