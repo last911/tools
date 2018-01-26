@@ -26,7 +26,7 @@ func initialize(env string, conf ...*simplejson.Json) (string, *simplejson.Json,
 	if len(conf) > 0 {
 		config = conf[0]
 	} else {
-		configPath := appPath + "config/config-" + env + ".json"
+		configPath := appPath + "/config/config-" + env + ".json"
 		log.Debug(fmt.Sprintf("load config from[%s]", configPath))
 
 		b, err := ioutil.ReadFile(configPath)

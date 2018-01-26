@@ -37,7 +37,7 @@ func AbsolutePath() (string, error) {
 		return "", err
 	}
 
-	return filepath.Dir(path) + "/", nil
+	return filepath.Dir(path), nil
 }
 
 // Md5Sum md5
