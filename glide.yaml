@@ -1,0 +1,12 @@
+package: github.com/last911/tools
+import:
+- package: github.com/bitly/go-simplejson
+- package: github.com/cihub/seelog
+- package: github.com/gin-gonic/gin
+- package: github.com/go-redis/redis
+- package: github.com/golang/groupcache
+  subpackages:
+  - consistenthash
+- package: github.com/jmoiron/sqlx
+testImport:
+- package: github.com/go-sql-driver/mysql

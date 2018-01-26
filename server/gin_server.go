@@ -8,7 +8,7 @@ import (
 // GinServer gin server inherits
 type GinServer struct {
 	Server
-	Engine *gin.Engine // Engine *gin.Engine
+	*gin.Engine // Engine *gin.Engine
 }
 
 // NewGinServer create a gin web server
@@ -22,6 +22,7 @@ func NewGinServer(env string, config ...*simplejson.Json) (*GinServer, error) {
 	}
 
 	if env == "pro" {
+		gin.SetMode(gin.ReleaseMode)
 		server.Engine = gin.New()
 	} else {
 		server.Engine = gin.Default()
@@ -32,10 +33,13 @@ func NewGinServer(env string, config ...*simplejson.Json) (*GinServer, error) {
 
 // Run start GinServer run
 func (s *GinServer) Run(addr ...string) error {
+	var address string
 	if len(addr) == 0 {
-		addr[0] = s.Config.Get("app").Get("addr").MustString()
+		address = s.Config.Get("app").Get("addr").MustString()
+	} else {
+		address = addr[0]
 	}
-	err := s.Engine.Run(addr[0])
+	err := s.Engine.Run(address)
 	if err != nil {
 		return err
 	}

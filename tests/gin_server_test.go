@@ -19,7 +19,7 @@ func TestGinServer(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		server.Engine.GET("/", func(c *gin.Context) {
+		server.GET("/", func(c *gin.Context) {
 			c.JSON(200, map[string]interface{}{
 				"name": "scnjl",
 				"age":  38,

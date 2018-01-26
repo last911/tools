@@ -215,10 +215,13 @@ func (s *JSONRPCServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Run start JSONRPCServer run
 func (s *JSONRPCServer) Run(addr ...string) error {
+	var address string
 	if len(addr) == 0 {
-		addr[0] = s.Config.Get("app").Get("addr").MustString()
+		address = s.Config.Get("app").Get("addr").MustString()
+	} else {
+		address = addr[0]
 	}
-	err := http.ListenAndServe(addr[0], s)
+	err := http.ListenAndServe(address, s)
 	if err != nil {
 		return err
 	}
