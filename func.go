@@ -10,6 +10,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"io"
 	"io/ioutil"
 	"math/rand"
@@ -24,6 +25,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
+)
+
+type AuthCodeType int
+
+const (
+	ENCODE AuthCodeType = iota
+	DECODE
 )
 
 // AbsolutePath get execute binary path
@@ -192,13 +200,13 @@ func RangeArray(m, n int) (b []int) {
 func Authcode(text string, params ...interface{}) (str string, err error) {
 	l := len(params)
 
-	isEncode := false
+	isEncode := DECODE
 	key := "abcdefghijklmnopqrstuvwxyz1234567890"
 	expiry := 0
 	cKeyLen := 8
 
 	if l > 0 {
-		isEncode = params[0].(bool)
+		isEncode = params[0].(AuthCodeType)
 	}
 
 	if l > 1 {
@@ -234,7 +242,7 @@ func Authcode(text string, params ...interface{}) (str string, err error) {
 	// keyC dynamic key
 	var keyC string
 	if cKeyLen > 0 {
-		if isEncode {
+		if isEncode == ENCODE {
 			// encrypt generate a key
 			keyC = Md5Sum(fmt.Sprint(timestamp))[32-cKeyLen:]
 		} else {
@@ -247,7 +255,7 @@ func Authcode(text string, params ...interface{}) (str string, err error) {
 	cryptKey := keyA + Md5Sum(keyA+keyC)
 	// key length
 	keyLen := len(cryptKey)
-	if isEncode {
+	if isEncode == ENCODE {
 		// The first 10 strings is expires time
 		// 10-26 strings is validator strings
 		var d int64
@@ -298,7 +306,7 @@ func Authcode(text string, params ...interface{}) (str string, err error) {
 		result = append(result, byte(int(textB[i])^(box[(box[a]+box[j])%256])))
 	}
 
-	if isEncode {
+	if isEncode == ENCODE {
 		// trim equal
 		return keyC + Base64Encode(result), nil
 	}
@@ -626,15 +634,20 @@ func CopyFile(dstName, srcName string) (written int64, err error) {
 
 // URLEncode urlencode
 func URLEncode(str string) string {
-	return base64.URLEncoding.EncodeToString([]byte(str))
+	return httpurl.QueryEscape(str)
 }
 
 // URLDecode urldecode
 func URLDecode(str string) (string, error) {
-	b, err := base64.URLEncoding.DecodeString(str)
+	return httpurl.QueryUnescape(str)
+}
+
+// UUID uuid
+func UUID() (string, error) {
+	u, err := uuid.NewRandom()
 	if err != nil {
 		return "", err
 	}
 
-	return string(b), nil
+	return u.String(), nil
 }
