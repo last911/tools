@@ -54,3 +54,7 @@ func initialize(env string, conf ...*simplejson.Json) (string, *simplejson.Json,
 
 	return appPath, config, nil
 }
+
+func (s *Server) Address() string {
+	return s.Config.Get("app").Get("addr").MustString()
+}

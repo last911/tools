@@ -217,7 +217,7 @@ func (s *JSONRPCServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *JSONRPCServer) Run(addr ...string) error {
 	var address string
 	if len(addr) == 0 {
-		address = s.Config.Get("app").Get("addr").MustString()
+		address = s.Address()
 	} else {
 		address = addr[0]
 	}

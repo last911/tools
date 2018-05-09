@@ -35,7 +35,7 @@ func NewGinServer(env string, config ...*simplejson.Json) (*GinServer, error) {
 func (s *GinServer) Run(addr ...string) error {
 	var address string
 	if len(addr) == 0 {
-		address = s.Config.Get("app").Get("addr").MustString()
+		address = s.Address()
 	} else {
 		address = addr[0]
 	}

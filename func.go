@@ -34,6 +34,13 @@ const (
 	DECODE
 )
 
+type Method int8
+
+const (
+	POST Method = iota
+	GET
+)
+
 // AbsolutePath get execute binary path
 func AbsolutePath() (string, error) {
 	file, err := exec.LookPath(os.Args[0])
@@ -486,7 +493,7 @@ func SplitBySpaceTab(str string) []string {
 // args[1] type is map[string]string, request headers
 // args[2] type is bool, whether to return the result
 // args[3] type is *http.Client, custom client
-func HTTPRequest(url, method string, args ...interface{}) (string, error) {
+func HTTPRequest(url string, method Method, args ...interface{}) (string, error) {
 	params := make(map[string]string)  // request parameters
 	headers := make(map[string]string) // request headers
 	rtn := true
@@ -512,7 +519,7 @@ func HTTPRequest(url, method string, args ...interface{}) (string, error) {
 	var err error
 	contentType := "application/x-www-form-urlencoded; charset=utf-8" // default content-type
 
-	if "GET" == strings.ToUpper(method) {
+	if method == GET {
 		// GET
 		q := make([]string, 0, len(params))
 		for k, v := range params {
