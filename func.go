@@ -154,6 +154,7 @@ func IsMac(mac string) bool {
 	if len(mac) != 17 {
 		return false
 	}
+	mac = strings.ToLower(mac)
 
 	r := `^(?i:[0-9a-f]{1})(?i:[02468ace]{1}):(?i:[0-9a-f]{2}):(?i:[0-9a-f]{2}):(?i:[0-9a-f]{2}):(?i:[0-9a-f]{2}):(?i:[0-9a-f]{2})`
 	reg, err := regexp.Compile(r)
@@ -657,4 +658,12 @@ func UUID() (string, error) {
 	}
 
 	return u.String(), nil
+}
+
+// IsMobile check chinese mobile number
+func IsMobile(mobile string) bool {
+	reg := `^1([34578][0-9])\d{8}$`
+	rgx := regexp.MustCompile(reg)
+
+	return rgx.MatchString(mobile)
 }

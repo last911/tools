@@ -73,3 +73,21 @@ func TestStructToMap(t *testing.T) {
 	ts := &TestStruct{Name: "scnjl", Age: 38}
 	t.Log(tools.StructToMap(ts))
 }
+
+func TestCheckMobile(t *testing.T) {
+	mobiles := []string{
+		"13550009575",
+		"14000000000",
+		"15358078343",
+		"17722398023",
+		"18283908934",
+		"19909273942",
+	}
+	for _, m := range mobiles {
+		if !tools.IsMobile(m) {
+			t.Fatalf("mobile:%s is invalid\n", m)
+		} else {
+			t.Logf("mobile:%s is valid\n", m)
+		}
+	}
+}
