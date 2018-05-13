@@ -130,7 +130,10 @@ func (db *DB) FetchOne(sql string, v ...interface{}) (Row, error) {
 		return nil, err
 	}
 
-	return rows[0], nil
+	if len(rows) > 0 {
+		return rows[0], nil
+	}
+	return nil, nil
 }
 
 // Count return count
